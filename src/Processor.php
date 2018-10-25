@@ -70,14 +70,19 @@ final class Processor
      * This params from service provider.
      *
      * @param   Predis\Client  $client
-     * @param   array  $config
+     * @param   array|null  $config
      */
-    public function __construct(Client $client, array $config)
+    public function __construct(Client $client, array $config = null)
     {
         $this->client = $client;
 
-        $this->retryCount = $config['retry'];
-        $this->retryDelay = $config['delay'];
+        if (isset($config['retry'])) {
+            $this->retryCount = $config['retry'];
+        }
+
+        if (isset($config['delay'])) {
+            $this->retryDelay = $config['delay'];
+        }
 
         $this->setExpireType(self::EXPIRE_TIME_MILLISECONDS);
     }
