@@ -3,6 +3,7 @@
 namespace RedisLock;
 
 use Predis\Client;
+use RedisLock\LuaScripts;
 
 /**
  * Simple mutex lock.
@@ -174,7 +175,7 @@ final class Processor
         }
 
         return self::UNLOCK_SUCCESS === $this->client->eval(
-            "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
+            LuaScripts::del(),
             1,
             self::KEY_PREFIX . $payload['key'],
             $payload['token']
