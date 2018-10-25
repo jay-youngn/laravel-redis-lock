@@ -13,7 +13,7 @@
     "require": {
         "php": ">=7.0.1",
         "predis/predis": "~1.0",
-        "illuminate/support": ">=5.2.45"
+        "illuminate/support": ">=5.4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^6.5"

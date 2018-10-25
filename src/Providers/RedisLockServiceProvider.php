@@ -36,7 +36,7 @@ class RedisLockServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Processor::class, function() {
             $config = config('redislock');
-            return new Processor(RedisFacade::connection($config['connection']), $config);
+            return new Processor(RedisFacade::connection($config['connection'])->client(), $config);
         });
     }
 
