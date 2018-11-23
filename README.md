@@ -35,6 +35,11 @@ return [
 ];
 ```
 
+Publish config file:
+```bash
+php artisan vendor:publish --provider="RedisLock\Providers\RedisLockServiceProvider"
+```
+
 ### Use
 ```php
 <?php
