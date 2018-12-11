@@ -157,7 +157,7 @@ final class Processor
         $retry = $isWaitingMode ? $this->retryCount : 0;
 
         while (! $result = $this->hit($key, $expire)) {
-            if (0 > $retry--) {
+            if (--$retry < 0) {
                 return $result;
             }
 
