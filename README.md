@@ -13,10 +13,10 @@
 > Using composer.
 ```bash
 # Laravel/Lumen < 5.4
-composer require "ginnerpeace/laravel-redis-lock:~1.0"
+composer require "ginnerpeace/laravel-redis-lock:~1.1"
 
 # Laravel/Lumen >= 5.4
-composer require "ginnerpeace/laravel-redis-lock:~2.0"
+composer require "ginnerpeace/laravel-redis-lock:~2.1"
 ```
 
 ### Add service provider:
