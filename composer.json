@@ -13,8 +13,8 @@
     ],
     "require": {
         "php": "^7.0",
-        "illuminate/redis": "^5.4",
-        "illuminate/support": "^5.4",
+        "illuminate/redis": ">=5.1,<5.4",
+        "illuminate/support": ">=5.1,<5.4",
         "predis/predis": "~1.0"
     },
     "autoload": {
