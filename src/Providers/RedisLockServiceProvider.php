@@ -4,21 +4,11 @@ namespace RedisLock\Providers;
 
 use RedisLock\Processor;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Redis as RedisFacade;
 
 class RedisLockServiceProvider extends ServiceProvider
 {
     /**
-     * Defer load.
-     *
-     * @var  boolean
-     */
-    protected $defer = true;
-
-    /**
-     * Bootstrap any application services.
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function boot()
     {
@@ -28,18 +18,30 @@ class RedisLockServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register any application services.
-     *
-     * @return void
+     * {@inheritdoc}
      */
     public function register()
     {
-        $this->app->singleton(Processor::class, function() {
-            $config = config('redislock');
-            return new Processor(RedisFacade::connection($config['connection'])->client(), $config);
+        $this->app->singleton(Processor::class, function($app) {
+            $config = $app['config']['redislock'];
+            return new Processor(
+                $app['redis']->connection($config['connection'])->client(),
+                $config
+            );
         });
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function isDeferred()
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function provides()
     {
         return [Processor::class];

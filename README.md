@@ -10,32 +10,53 @@
 ## Getting started
 
 ### Install
+> Using composer.
 ```bash
-composer require ginnerpeace/laravel-redis-lock
+# Laravel/Lumen < 5.4
+composer require "ginnerpeace/laravel-redis-lock:~1.0"
+
+# Laravel/Lumen >= 5.4
+composer require "ginnerpeace/laravel-redis-lock:~2.0"
 ```
 
-Add service provider:
+### Add service provider:
+> Normally.
 ```php
 <?php
 return [
     // ....
-
-    'providers' => array(
+    'providers' => [
         // ...
         RedisLock\Providers\RedisLockServiceProvider::class,
-    ),
-
+    ],
     // Its optional.
-    'aliases' => array(
+    'aliases' => [
         // ...
         'RedisLock' => RedisLock\Facades\RedisLock::class,
-    ),
-
+    ],
     // ...
 ];
 ```
 
-Publish config file:
+> After Laravel 5.5, the package auto-discovery is supported.
+```javascript
+{
+    "providers": [
+        "RedisLock\\Providers\\RedisLockServiceProvider"
+    ],
+    "aliases": {
+        "RedisLock": "RedisLock\\Facades\\RedisLock"
+    }
+}
+```
+
+> Lumen
+```php
+$app->register(RedisLock\Providers\LumenRedisLockServiceProvider::class);
+```
+
+### Publish resources (laravel only)
+> Copied config to `config/redislock.php`.
 ```bash
 php artisan vendor:publish --provider="RedisLock\Providers\RedisLockServiceProvider"
 ```

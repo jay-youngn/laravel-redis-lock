@@ -17,7 +17,7 @@ use RedisLock\LuaScripts;
  * @author gjy <ginnerpeace@live.com>
  * @link https://github.com/ginnerpeace/laravel-redis-lock
  */
-final class Processor
+class Processor
 {
     // Redis key prefix
     const KEY_PREFIX = 'mutex-lock:';
