@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'connection' => 'redis-lock',
+    'connection' => 'default',
     'retry' => 3,
     'delay' => 200,
 ];
