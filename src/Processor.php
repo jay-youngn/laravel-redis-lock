@@ -164,7 +164,7 @@ class Processor
      * @param   array  $payload
      * @return  bool
      */
-    public function verify(array $payload)
+    public function verify(array $payload): bool
     {
         if (! isset($payload['key'], $payload['token'])) {
             return false;
