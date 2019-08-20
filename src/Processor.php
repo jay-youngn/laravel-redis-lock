@@ -114,35 +114,6 @@ class Processor
     }
 
     /**
-     * Do it.
-     *
-     * @param   string  $key
-     * @param   int  $expire
-     * @param   string  $token
-     * @return  array
-     */
-    protected function hit(string $key, int $expire): array
-    {
-
-        if (self::LOCK_SUCCESS === (string) $this->client->set(
-            self::KEY_PREFIX . $key,
-            $token = uniqid(mt_rand()),
-            $this->expireType,
-            $expire,
-            self::IF_NOT_EXIST
-        )) {
-            return [
-                'key' => $key,
-                'token' => $token,
-                'expire' => $expire,
-                'expire_type' => $this->expireType,
-            ];
-        }
-
-        return [];
-    }
-
-    /**
      * Get lock.
      *
      * @param   string  $key
@@ -185,5 +156,49 @@ class Processor
             self::KEY_PREFIX . $payload['key'],
             $payload['token']
         );
+    }
+
+    /**
+     * Verify lock payload.
+     *
+     * @param   array  $payload
+     * @return  bool
+     */
+    public function verify(array $payload)
+    {
+        if (! isset($payload['key'], $payload['token'])) {
+            return false;
+        }
+
+        return $payload['token'] === $this->client->get(self::KEY_PREFIX . $payload['key']);
+    }
+
+    /**
+     * Do it.
+     *
+     * @param   string  $key
+     * @param   int  $expire
+     * @param   string  $token
+     * @return  array
+     */
+    protected function hit(string $key, int $expire): array
+    {
+
+        if (self::LOCK_SUCCESS === (string) $this->client->set(
+            self::KEY_PREFIX . $key,
+            $token = uniqid(mt_rand()),
+            $this->expireType,
+            $expire,
+            self::IF_NOT_EXIST
+        )) {
+            return [
+                'key' => $key,
+                'token' => $token,
+                'expire' => $expire,
+                'expire_type' => $this->expireType,
+            ];
+        }
+
+        return [];
     }
 }
