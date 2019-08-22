@@ -159,6 +159,29 @@ class Processor
     }
 
     /**
+     * Delay a lock if it still effective.
+     *
+     * @param   array  $payload
+     * @param   int  $expire
+     * @return  bool
+     */
+    public function delay(array $payload, int $expire): bool
+    {
+        if (! isset($payload['key'], $payload['token'])) {
+            return false;
+        }
+
+        return 1 === $this->client->eval(
+            $this->expireType === self::EXPIRE_TIME_MILLISECONDS ?
+                LuaScripts::pexpire() : LuaScripts::expire(),
+            1,
+            self::KEY_PREFIX . $payload['key'],
+            $payload['token'],
+            $expire
+        );
+    }
+
+    /**
      * Verify lock payload.
      *
      * @param   array  $payload
