@@ -144,26 +144,36 @@ class Processor
     }
 
     /**
-     * Delay a lock if it still effective.
+     * Reset a lock if it still effective.
      *
      * @param   array  $payload
      * @param   int  $expire
-     * @return  bool
+     * @return  array
+     *          - Not empty for relock success.
+     *          - Empty for cant relock.
      */
-    public function delay(array $payload, int $expire): bool
+    public function relock(array $payload, int $expire): array
     {
-        if (! isset($payload['key'], $payload['token'])) {
-            return false;
+        if (
+            isset($payload['key'], $payload['token'])
+            && 1 === $this->client->eval(
+                $this->expireType === self::EXPIRE_TIME_MILLISECONDS ?
+                    LuaScripts::pexpire() : LuaScripts::expire(),
+                1,
+                self::KEY_PREFIX . $payload['key'],
+                $payload['token'],
+                $expire
+            )
+        ) {
+            return [
+                'key' => $payload['key'],
+                'token' => $payload['token'],
+                'expire' => $expire,
+                'expire_type' => $this->expireType,
+            ];
         }
 
-        return 1 === $this->client->eval(
-            $this->expireType === self::EXPIRE_TIME_MILLISECONDS ?
-                LuaScripts::pexpire() : LuaScripts::expire(),
-            1,
-            self::KEY_PREFIX . $payload['key'],
-            $payload['token'],
-            $expire
-        );
+        return [];
     }
 
     /**
