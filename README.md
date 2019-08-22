@@ -11,16 +11,14 @@
 
 ### Install
 > Using composer.
-```bash
-# Laravel/Lumen < 5.4
-composer require "ginnerpeace/laravel-redis-lock:~1.1"
 
-# Laravel/Lumen >= 5.4
-composer require "ginnerpeace/laravel-redis-lock:~2.1"
+```bash"
+composer require "ginnerpeace/laravel-redis-lock:~2.2"
 ```
 
 ### Add service provider:
 > Normally.
+
 ```php
 <?php
 return [
@@ -39,6 +37,7 @@ return [
 ```
 
 > After Laravel 5.5, the package auto-discovery is supported.
+
 ```javascript
 {
     "providers": [
@@ -51,12 +50,14 @@ return [
 ```
 
 > Lumen
+
 ```php
 $app->register(RedisLock\Providers\LumenRedisLockServiceProvider::class);
 ```
 
 ### Publish resources (laravel only)
 > Copied config to `config/redislock.php`.
+
 ```bash
 php artisan vendor:publish --provider="RedisLock\Providers\RedisLockServiceProvider"
 ```
@@ -107,11 +108,29 @@ $payload = RedisLock::lock('key', 100000);
 // Return bool.
 RedisLock::unlock($payload);
 
+// Determine a lock if it still effective.
+RedisLock::verify($payload);
+
+// Delay a lock if it still effective.
+RedisLock::delay($payload);
+
+/////////////////////
+// Special usages: //
+/////////////////////
+
 // Try 5 times if can't get lock at first hit.
-// Default value: 3
-RedisLock::setRetry(5)->lock('key', 100000);
+// Default value is property: retryCount it from config('redislock.retry_count')
+RedisLock::lock('key', 100000, 5);
 
 // Try once only.
-RedisLock::lock('key', 100000, false);
+RedisLock::lock('key', 100000, 1);
+// If value less than 1, will try at least once.
+// But not pretty...
+// RedisLock::lock('key', 100000, 0);
+// RedisLock::lock('key', 100000, -1);
+
+// Change default retry delay.
+// Try 10 times & every retry be apart 500 ~ 1000 milliseconds.
+RedisLock::setRetryDelay(1000)->lock('key', 100000, 10);
 
 ```

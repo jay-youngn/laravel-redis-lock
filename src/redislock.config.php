@@ -2,6 +2,6 @@
 
 return [
     'connection' => 'default',
-    'retry' => 3,
-    'delay' => 200,
+    'retry_count' => 3,
+    'retry_delay' => 200,
 ];

@@ -24,9 +24,17 @@ class RedisLockServiceProvider extends ServiceProvider
     {
         $this->app->singleton(Processor::class, function($app) {
             $config = $app['config']['redislock'];
+
+            if ($this->versionCompare('5.4', '>=')) {
+                $predisClient = $app['redis']->connection($config['connection'])->client();
+            } else {
+                $predisClient = $app['redis']->connection($config['connection']);
+            }
+
             return new Processor(
-                $app['redis']->connection($config['connection'])->client(),
-                $config
+                $predisClient,
+                $config['retry_count'],
+                $config['retry_delay']
             );
         });
     }
@@ -45,5 +53,18 @@ class RedisLockServiceProvider extends ServiceProvider
     public function provides()
     {
         return [Processor::class];
+    }
+
+    /**
+     * Compare illuminate component version.
+     *     - illuminate/redis 5.4 has a big upgrade.
+     *
+     * @param   string  $compareVersion
+     * @param   string  $operator
+     * @return  bool|null
+     */
+    protected function versionCompare(string $compareVersion, string $operator)
+    {
+        return version_compare($this->app->version(), $compareVersion, $operator);
     }
 }

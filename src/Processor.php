@@ -2,7 +2,7 @@
 
 namespace RedisLock;
 
-use Predis\Client;
+use Predis\ClientInterface;
 use RedisLock\LuaScripts;
 
 /**
@@ -25,7 +25,7 @@ class Processor
     // Response string from redis cmd: set
     const LOCK_SUCCESS = 'OK';
 
-    // Response string from redis lua script: eval
+    // Response int from redis lua script: redis.call('del', KEY)
     const UNLOCK_SUCCESS = 1;
 
     // Params for cmd: set
@@ -52,14 +52,6 @@ class Processor
     private $expireType;
 
     /**
-     * How many times do you want to try again.
-     *     (milliseconds)
-     *
-     * @var  integer
-     */
-    private $retryDelay = 200;
-
-    /**
      * Number of retry times.
      *
      * @var  int
@@ -67,24 +59,27 @@ class Processor
     private $retryCount = 3;
 
     /**
+     * How many times do you want to try again.
+     *     (milliseconds)
+     *
+     * @var  int
+     */
+    private $retryDelay = 200;
+
+    /**
      * This params from service provider.
      *
-     * @param   Predis\Client  $client
-     * @param   array|null  $config
+     * @param   Predis\ClientInterface  $client
+     * @param   int  $retryCount
+     * @param   int  $retryDelay
      */
-    public function __construct(Client $client, array $config = null)
+    public function __construct(ClientInterface $client, int $retryCount, int $retryDelay)
     {
         $this->client = $client;
 
-        if (isset($config['retry'])) {
-            $this->retryCount = $config['retry'];
-        }
-
-        if (isset($config['delay'])) {
-            $this->retryDelay = $config['delay'];
-        }
-
         $this->setExpireType(self::EXPIRE_TIME_MILLISECONDS);
+        $this->setRetryDelay($retryDelay);
+        $this->retryCount = $retryCount;
     }
 
     /**
@@ -101,14 +96,13 @@ class Processor
     }
 
     /**
-     * Set retry number of times.
+     * Set retry delay time.
      *
-     * @param   int  $retry
-     * @return  self
+     * @param  int  $milliseconds
      */
-    public function setRetry(int $retry): self
+    public function setRetryDelay(int $milliseconds): self
     {
-        $this->retryCount = $retry;
+        $this->retryDelay = $milliseconds;
 
         return $this;
     }
@@ -118,17 +112,17 @@ class Processor
      *
      * @param   string  $key
      * @param   int  $expire
-     * @param   bool  $isWaitingMode
+     * @param   int  $retry
      * @return  array
      *          - Not empty for getted lock.
      *          - Empty for lock timeout.
      */
-    public function lock(string $key, int $expire, bool $isWaitingMode = true): array
+    public function lock(string $key, int $expire, int $retry = null): array
     {
-        $retry = $isWaitingMode ? $this->retryCount : 0;
+        $retry = $retry ?? $this->retryCount ?? 0;
 
         while (! $result = $this->hit($key, $expire)) {
-            if (--$retry < 0) {
+            if (--$retry < 1) {
                 return $result;
             }
 
