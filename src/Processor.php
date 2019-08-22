@@ -22,15 +22,6 @@ class Processor
     // Redis key prefix
     const KEY_PREFIX = 'mutex-lock:';
 
-    // Response string from redis cmd: set
-    const LOCK_SUCCESS = 'OK';
-
-    // Response int from redis lua script: redis.call('del', KEY)
-    const UNLOCK_SUCCESS = 1;
-
-    // Params for cmd: set
-    const IF_NOT_EXIST = 'NX';
-
     // Expire type: seconds
     const EXPIRE_TIME_SECONDS = 'EX';
 
@@ -144,7 +135,7 @@ class Processor
             return false;
         }
 
-        return self::UNLOCK_SUCCESS === $this->client->eval(
+        return 1 === $this->client->eval(
             LuaScripts::del(),
             1,
             self::KEY_PREFIX . $payload['key'],
@@ -201,12 +192,12 @@ class Processor
     protected function hit(string $key, int $expire): array
     {
 
-        if (self::LOCK_SUCCESS === (string) $this->client->set(
+        if ('OK' === (string) $this->client->set(
             self::KEY_PREFIX . $key,
             $token = uniqid(mt_rand()),
             $this->expireType,
             $expire,
-            self::IF_NOT_EXIST
+            'NX'
         )) {
             return [
                 'key' => $key,
