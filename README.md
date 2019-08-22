@@ -112,7 +112,8 @@ RedisLock::unlock($payload);
 RedisLock::verify($payload);
 
 // Delay a lock if it still effective.
-RedisLock::delay($payload);
+// The 'expire' param is same to use RedisLock::lock()
+RedisLock::delay($payload, 100000);
 
 /////////////////////
 // Special usages: //
