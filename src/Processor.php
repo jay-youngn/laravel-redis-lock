@@ -8,12 +8,6 @@ use RedisLock\LuaScripts;
 /**
  * Simple mutex lock.
  *
- *     __ _(_)_ __  _ __   ___ _ __ _ __   ___  __ _  ___ ___
- *    / _` | | '_ \| '_ \ / _ \ '__| '_ \ / _ \/ _` |/ __/ _ \
- *   | (_| | | | | | | | |  __/ |  | |_) |  __/ (_| | (_|  __/
- *    \__, |_|_| |_|_| |_|\___|_|  | .__/ \___|\__,_|\___\___|
- *    |___/                        |_|
- *
  * @author gjy <ginnerpeace@live.com>
  * @link https://github.com/ginnerpeace/laravel-redis-lock
  */
@@ -31,21 +25,21 @@ class Processor
     /**
      * Predis Client.
      *
-     * @var  Predis\Client
+     * @var \Predis\ClientInterface
      */
     private $client;
 
     /**
      * Expire type for the lock key.
      *
-     * @var  string
+     * @var string
      */
     private $expireType;
 
     /**
      * Number of retry times.
      *
-     * @var  int
+     * @var int
      */
     private $retryCount = 3;
 
@@ -53,16 +47,16 @@ class Processor
      * How many times do you want to try again.
      *     (milliseconds)
      *
-     * @var  int
+     * @var int
      */
     private $retryDelay = 200;
 
     /**
      * This params from service provider.
      *
-     * @param   Predis\ClientInterface  $client
-     * @param   int  $retryCount
-     * @param   int  $retryDelay
+     * @param \Predis\ClientInterface $client
+     * @param int $retryCount
+     * @param int $retryDelay
      */
     public function __construct(ClientInterface $client, int $retryCount, int $retryDelay)
     {
@@ -76,8 +70,8 @@ class Processor
     /**
      * Set key expire type.
      *
-     * @param   string  $value
-     * @return  self
+     * @param string $value
+     * @return static
      */
     public function setExpireType(string $value): self
     {
@@ -89,7 +83,7 @@ class Processor
     /**
      * Set retry delay time.
      *
-     * @param  int  $milliseconds
+     * @param int $milliseconds
      */
     public function setRetryDelay(int $milliseconds): self
     {
@@ -101,10 +95,10 @@ class Processor
     /**
      * Get lock.
      *
-     * @param   string  $key
-     * @param   int  $expire
-     * @param   int  $retry
-     * @return  array
+     * @param string $key
+     * @param int $expire
+     * @param int $retry
+     * @return array
      *          - Not empty for getted lock.
      *          - Empty for lock timeout.
      */
@@ -126,8 +120,8 @@ class Processor
     /**
      * Release the lock.
      *
-     * @param   array  $payload
-     * @return  bool
+     * @param array $payload
+     * @return bool
      */
     public function unlock(array $payload): bool
     {
@@ -146,9 +140,9 @@ class Processor
     /**
      * Reset a lock if it still effective.
      *
-     * @param   array  $payload
-     * @param   int  $expire
-     * @return  array
+     * @param array $payload
+     * @param int $expire
+     * @return array
      *          - Not empty for relock success.
      *          - Empty for cant relock.
      */
@@ -179,8 +173,8 @@ class Processor
     /**
      * Verify lock payload.
      *
-     * @param   array  $payload
-     * @return  bool
+     * @param array $payload
+     * @return bool
      */
     public function verify(array $payload): bool
     {
@@ -194,14 +188,13 @@ class Processor
     /**
      * Do it.
      *
-     * @param   string  $key
-     * @param   int  $expire
-     * @param   string  $token
-     * @return  array
+     * @param string $key
+     * @param int $expire
+     * @param string $token
+     * @return array
      */
     protected function hit(string $key, int $expire): array
     {
-
         if ('OK' === (string) $this->client->set(
             self::KEY_PREFIX . $key,
             $token = uniqid(mt_rand()),

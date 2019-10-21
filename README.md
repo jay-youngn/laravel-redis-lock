@@ -12,7 +12,7 @@
 ### Install
 > Using composer.
 
-```bash"
+```bash
 composer require "ginnerpeace/laravel-redis-lock:~2.2"
 ```
 
