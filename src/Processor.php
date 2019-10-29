@@ -6,17 +6,17 @@ use Predis\ClientInterface;
 use RedisLock\LuaScripts;
 
 /**
- * Simple mutex lock.
+ * Simple redis mutex lock.
  *
  * @author gjy <ginnerpeace@live.com>
  * @link https://github.com/ginnerpeace/laravel-redis-lock
  */
 class Processor
 {
-    // Redis key prefix
+    // Redis key prefix.
     const KEY_PREFIX = 'mutex-lock:';
 
-    // Expire type: milliseconds
+    // Expire type is milliseconds.
     const EXPIRE_TYPE = 'PX';
 
     /**
@@ -71,11 +71,11 @@ class Processor
     }
 
     /**
-     * Get lock.
+     * Trying to get lock.
      *
      * @param string $key
      * @param int $expire
-     * @param int $retry
+     * @param int|null $retry
      * @return array
      *          - Not empty for getted lock.
      *          - Empty for lock timeout.
