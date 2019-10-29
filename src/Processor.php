@@ -111,7 +111,7 @@ class Processor
         $retry = $retry ?? $this->retryCount ?? 0;
 
         while (! $result = $this->hit($key, $expire)) {
-            if (--$retry < 1) {
+            if ($retry-- < 1) {
                 return $result;
             }
 
