@@ -5,7 +5,8 @@
 [![Latest Unstable Version](https://poser.pugx.org/ginnerpeace/laravel-redis-lock/v/unstable.svg)](https://packagist.org/packages/ginnerpeace/laravel-redis-lock)
 [![License](https://poser.pugx.org/ginnerpeace/laravel-redis-lock/license.svg)](https://packagist.org/packages/ginnerpeace/laravel-redis-lock)
 
-> Simple mutex lock, redis edition.
+> Simple redis mutex lock in Laravel.
+> Support distributed if enable `config('database.redis.cluster')`
 
 ## Getting started
 
@@ -13,7 +14,7 @@
 > Using composer.
 
 ```bash
-composer require "ginnerpeace/laravel-redis-lock:~2.2"
+composer require "ginnerpeace/laravel-redis-lock:~2.3"
 ```
 
 ### Add service provider:
@@ -62,15 +63,31 @@ $app->register(RedisLock\Providers\LumenRedisLockServiceProvider::class);
 php artisan vendor:publish --provider="RedisLock\Providers\RedisLockServiceProvider"
 ```
 
+Default items:
+```php
+<?php
+
+return [
+    // Use app('redis')->connection('default')
+    'connection' => 'default',
+    'retry_count' => 3,
+    'retry_delay' => 200,
+];
+
+```
+
 ### Use
 ```php
 <?php
 
 use RedisLock\Facades\RedisLock;
 
-// Ex. 1
+// Set the specified expire time, in milliseconds.
 $millisecond = 100000;
 
+// Try get lock.
+// If has non-null property `$this->retryCount`, will retry some times with its value.
+// Default value is `config('redislock.retry_count')`
 $payload = RedisLock::lock('key', $millisecond);
 /*
 [
@@ -81,25 +98,7 @@ $payload = RedisLock::lock('key', $millisecond);
 ]
 */
 
-// Ex. 2
-$second = 100;
-
-/**
- * Its singleton instance, same as the following:
- * RedisLock::setExpireType('EX');
- * RedisLock::lock('key', $second);
- */
-$payload = RedisLock::setExpireType('EX')->lock('key', $second);
-/*
-[
-    "key" => "key",
-    "token" => "5069829505bd154c8bb865",
-    "expire" => 100,
-    "expire_type" => "EX",
-]
-*/
-
-// Is locking.
+// If cannot get lock, will return empty array.
 $payload = RedisLock::lock('key', 100000);
 /*
 []
@@ -112,26 +111,42 @@ RedisLock::unlock($payload);
 RedisLock::verify($payload);
 
 // Reset a lock if it still effective.
-// The 'expire' param is same to use RedisLock::lock()
-RedisLock::relock($payload, 100000);
+// The returned value is same to use RedisLock::lock()
+RedisLock::relock($payload, $millisecond);
 
 /////////////////////
 // Special usages: //
 /////////////////////
 
-// Try 5 times if can't get lock at first hit.
-// Default value is property: retryCount it from config('redislock.retry_count')
+// Retry 5 times when missing the first time.
+// Non-null `$retry` param will priority over `$this->retryCount`.
 RedisLock::lock('key', 100000, 5);
 
-// Try once only.
-RedisLock::lock('key', 100000, 1);
-// If value less than 1, will try at least once.
-// But not pretty...
-// RedisLock::lock('key', 100000, 0);
+// No retry (Try once only).
+RedisLock::lock('key', 100000, 0);
+// If value less than 0, still means try once only.
 // RedisLock::lock('key', 100000, -1);
+// Hmmmmmmm...Not pretty.
 
-// Change default retry delay.
-// Try 10 times & every retry be apart 500 ~ 1000 milliseconds.
+// Change property `$this->retryDelay` (Default value is `config('redislock.retry_delay')`).
+// Retry 10 times when missing the first time.
+// Every retry be apart 500 ~ 1000 milliseconds.
 RedisLock::setRetryDelay(1000)->lock('key', 100000, 10);
+// PS:
+// RedisLock is default registered to singleton, call method `setRetryDelay()` will affects subsequent code.
+
+// Use in business logic:
+try {
+    if (! $lock = RedisLock::lock('do-some-thing', 100000)) {
+        throw new Exception('Resource locked.');
+    }
+    //////////////////////
+    // Call ur methods. //
+    //////////////////////
+} catch (Exception $e) {
+    throw $e;
+} finally {
+    RedisLock::unlock($lock);
+}
 
 ```
