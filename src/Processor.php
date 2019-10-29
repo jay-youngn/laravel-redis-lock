@@ -39,7 +39,7 @@ class Processor
     /**
      * Number of retry times.
      *
-     * @var int
+     * @var int|null
      */
     private $retryCount = 3;
 
@@ -55,15 +55,19 @@ class Processor
      * This params from service provider.
      *
      * @param \Predis\ClientInterface $client
-     * @param int $retryCount
-     * @param int $retryDelay
+     * @param int|null $retryCount
+     * @param int|null $retryDelay
      */
-    public function __construct(ClientInterface $client, int $retryCount, int $retryDelay)
+    public function __construct(ClientInterface $client, int $retryCount = null, int $retryDelay = null)
     {
         $this->client = $client;
 
         $this->setExpireType(self::EXPIRE_TIME_MILLISECONDS);
-        $this->setRetryDelay($retryDelay);
+
+        if (isset($retryDelay)) {
+            $this->setRetryDelay($retryDelay);
+        }
+
         $this->retryCount = $retryCount;
     }
 
