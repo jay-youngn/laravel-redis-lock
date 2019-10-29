@@ -1,3 +1,6 @@
 /vendor
 /.idea
+/.vscode
 /README.html
+composer.lock
+*.swp
