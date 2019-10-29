@@ -16,11 +16,8 @@ class Processor
     // Redis key prefix
     const KEY_PREFIX = 'mutex-lock:';
 
-    // Expire type: seconds
-    const EXPIRE_TIME_SECONDS = 'EX';
-
     // Expire type: milliseconds
-    const EXPIRE_TIME_MILLISECONDS = 'PX';
+    const EXPIRE_TYPE = 'PX';
 
     /**
      * Predis Client.
@@ -30,18 +27,11 @@ class Processor
     private $client;
 
     /**
-     * Expire type for the lock key.
-     *
-     * @var string
-     */
-    private $expireType;
-
-    /**
      * Number of retry times.
      *
      * @var int|null
      */
-    private $retryCount = 3;
+    private $retryCount = null;
 
     /**
      * How many times do you want to try again.
@@ -61,27 +51,11 @@ class Processor
     public function __construct(ClientInterface $client, int $retryCount = null, int $retryDelay = null)
     {
         $this->client = $client;
-
-        $this->setExpireType(self::EXPIRE_TIME_MILLISECONDS);
+        $this->retryCount = $retryCount;
 
         if (isset($retryDelay)) {
             $this->setRetryDelay($retryDelay);
         }
-
-        $this->retryCount = $retryCount;
-    }
-
-    /**
-     * Set key expire type.
-     *
-     * @param string $value
-     * @return static
-     */
-    public function setExpireType(string $value): self
-    {
-        $this->expireType = $value;
-
-        return $this;
     }
 
     /**
@@ -155,8 +129,7 @@ class Processor
         if (
             isset($payload['key'], $payload['token'])
             && 1 === $this->client->eval(
-                $this->expireType === self::EXPIRE_TIME_MILLISECONDS ?
-                    LuaScripts::pexpire() : LuaScripts::expire(),
+                static::EXPIRE_TYPE === 'PX' ? LuaScripts::pexpire() : LuaScripts::expire(),
                 1,
                 self::KEY_PREFIX . $payload['key'],
                 $payload['token'],
@@ -167,7 +140,7 @@ class Processor
                 'key' => $payload['key'],
                 'token' => $payload['token'],
                 'expire' => $expire,
-                'expire_type' => $this->expireType,
+                'expire_type' => static::EXPIRE_TYPE,
             ];
         }
 
@@ -202,7 +175,7 @@ class Processor
         if ('OK' === (string) $this->client->set(
             self::KEY_PREFIX . $key,
             $token = uniqid(mt_rand()),
-            $this->expireType,
+            static::EXPIRE_TYPE,
             $expire,
             'NX'
         )) {
@@ -210,7 +183,7 @@ class Processor
                 'key' => $key,
                 'token' => $token,
                 'expire' => $expire,
-                'expire_type' => $this->expireType,
+                'expire_type' => static::EXPIRE_TYPE,
             ];
         }
 
