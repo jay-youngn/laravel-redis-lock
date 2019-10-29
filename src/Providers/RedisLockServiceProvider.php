@@ -13,8 +13,10 @@ class RedisLockServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../redislock.config.php' => config_path('redislock.php'),
+            __DIR__.'/../redislock.config.php' => config_path('redislock.php'),
         ], 'config');
+
+        $this->mergeConfigFrom(__DIR__.'/../redislock.config.php', 'redislock');
     }
 
     /**
