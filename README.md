@@ -5,8 +5,7 @@
 [![Latest Unstable Version](https://poser.pugx.org/ginnerpeace/laravel-redis-lock/v/unstable.svg)](https://packagist.org/packages/ginnerpeace/laravel-redis-lock)
 [![License](https://poser.pugx.org/ginnerpeace/laravel-redis-lock/license.svg)](https://packagist.org/packages/ginnerpeace/laravel-redis-lock)
 
-> Simple redis mutex lock in Laravel.
-> Support distributed if enable `config('database.redis.cluster')`
+> Simple redis distributed locks for Laravel.
 
 ## Getting started
 
