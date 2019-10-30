@@ -1,7 +1,7 @@
 {
     "name": "ginnerpeace/laravel-redis-lock",
     "homepage": "https://github.com/ginnerpeace/laravel-redis-lock",
-    "description": "Simple mutex lock, redis edition.",
+    "description": "Simple redis distributed locks for Laravel.",
     "keywords": ["redis", "mutex lock", "laravel", "lumen"],
     "license": "MIT",
     "authors": [
