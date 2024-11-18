@@ -1,19 +1,19 @@
 {
     "name": "ginnerpeace/laravel-redis-lock",
-    "homepage": "https://github.com/ginnerpeace/laravel-redis-lock",
+    "homepage": "https://github.com/jay-youngn/laravel-redis-lock",
     "description": "Simple redis distributed locks for Laravel.",
     "keywords": ["redis", "mutex lock", "laravel", "lumen"],
     "license": "MIT",
     "authors": [
         {
-            "name": "ginnerpeace",
+            "name": "JayYoungn",
             "email": "ginnerpeace@gmail.com"
         }
     ],
     "require": {
         "php": "^7.0|^8.0",
-        "illuminate/redis": "^5.1|^6.0|^7.0|^8.0|^9.0|^10.0",
-        "illuminate/support": "^5.1|^6.0|^7.0|^8.0|^9.0|^10.0",
+        "illuminate/redis": "^5.1|^6.0|^7.0|^8.0|^9.0|^10.0|^11.0",
+        "illuminate/support": "^5.1|^6.0|^7.0|^8.0|^9.0|^10.0|^11.0",
         "predis/predis": "^1.1 || ^2.0"
     },
     "autoload": {

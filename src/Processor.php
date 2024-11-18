@@ -9,7 +9,7 @@ use RedisLock\LuaScripts;
  * Simple redis mutex lock.
  *
  * @author gjy <ginnerpeace@live.com>
- * @link https://github.com/ginnerpeace/laravel-redis-lock
+ * @link https://github.com/jay-youngn/laravel-redis-lock
  */
 class Processor
 {
